@@ -1,0 +1,22 @@
+{
+  "name": "encipher",
+  "version": "1.0.0",
+  "description": "Enciper helps you to encode string into AES-256 encrypted code",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asb14690/encipher.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/asb14690/encipher/issues"
+  },
+  "homepage": "https://github.com/asb14690/encipher#readme",
+  "dependencies": {
+    "qr-image": "^3.2.0"
+  }
+}
