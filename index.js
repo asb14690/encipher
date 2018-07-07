@@ -1,33 +1,42 @@
 'use strict';
 
 const crypto = require('crypto');
-const fs = require('fs');
-const qr = require('qr-image');
 
-module.exports = function(key){
-  this.key = key;
-  return {
-    encode:(str) => {
-      let encoder = crypto.createCipher('aes-256-ctr',this.key);
-      return encoder.update(str,'utf-8','hex');
-    },
-    decode:(str) => {
-      let decoder = crypto.createDecipher('aes-256-ctr',this.key);
-      return decoder.update(str,'hex','utf-8');
-    },
-    qrGenrator:(data,file) => {
-      let dataToEncode = data || null;
-      let outImage = file || null;
-      if(dataToEncode !== null && outImage !== null){
-        qr.image(dataToEncode, {
-          type:'png',
-          size:20
-        }).pipe(fs.createWriteStream(outImage));
-        return true;
-      } else {
-        return false;
-      }
+class Cipher {
+  constructor(key) {
+    this.key = key;
+  }
 
-    }
+  encode(str){
+    // generate IV(Initialization vector)
+    const iv = crypto.pbkdf2Sync(this.key, crypto.randomBytes(16),10000, 16, 'sha512');
+    // genrate binary key
+    const key = Buffer.from(this.key, 'binary');
+    // create encoder
+    const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
+
+    let encodedText = cipher.update(str, 'utf8', 'base64');
+
+    encodedText += cipher.final();
+
+    return encodedText + "." + iv.toString('base64');
+  }
+
+  decode(str){
+    const encodedString = str.split(".")[0];
+
+    const iv = Buffer.from(str.split(".")[1], 'base64');
+
+    const key = Buffer.from(this.key, 'binary');
+
+    const decipher = crypto.createDecipheriv("aes-256-ctr", key, iv);
+
+    let decodedText = decipher.update(encodedString, 'base64');
+
+    decodedText += decipher.final();
+
+    return decodedText;
   }
 }
+
+module.exports = Cipher;
